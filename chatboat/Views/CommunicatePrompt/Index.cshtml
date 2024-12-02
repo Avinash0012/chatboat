@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT-like Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .message {
+            margin-bottom: 15px;
+        }
+
+            .message.user {
+                text-align: right;
+            }
+
+            .message.bot {
+                text-align: left;
+            }
+
+            .message p {
+                margin: 0;
+                padding: 10px;
+                border-radius: 15px;
+                display: inline-block;
+            }
+
+            .message.user p {
+                background-color: #d1e7dd;
+            }
+
+            .message.bot p {
+                background-color: #e2e3e5;
+            }
+
+        .chat-input {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+        }
+
+            .chat-input textarea {
+                flex: 1;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                resize: none;
+            }
+
+            .chat-input button {
+                background-color: #007bff;
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                margin-left: 10px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                .chat-input button:hover {
+                    background-color: #0056b3;
+                }
+
+        #chat-messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .user {
+            background-color: #e1f5fe;
+            text-align: right;
+        }
+
+        .bot {
+            background-color: #f1f8e9;
+            text-align: left;
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h5><center>Chat with Avinash </center></h5>
+        <div class="chat-messages" id="chat-messages">
+            
+            
+        </div>
+        <div class="chat-input">
+            <textarea id="sendmsg" rows="3" placeholder="Type your message..."></textarea>
+            <button id="btn-add">Send</button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btn-add').click(function () {
+                let userMessage = $('#sendmsg').val();
+                if (userMessage.trim() === "") return;
+                $('#chat-messages').append(`
+                    <div class="message user">
+                        <p>${userMessage}</p>
+                    </div>
+                `);
+                $.post('/CommunicatePrompt/SendRequest', { prompt: userMessage })
+                    .done(function (res) {
+                        let escapedResponse = $('<div>').text(res).html();
+                        $('#chat-messages').append(`
+                            <div class="message bot">
+                                <p>${escapedResponse}</p>
+                            </div>
+                        `);
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.error('Error:', textStatus, errorThrown);
+                    });
+                $('#sendmsg').val('');
+                $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+            });
+        });
+
+    </script>
+</body>
+</html>
